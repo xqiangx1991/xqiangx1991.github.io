@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  <!--  if (theme.douban.user && page.layout === 'books') {  -->
+  <!-- <meta name="referrer" content="never"> -->
+  <!--  }  -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>《Python深度学习》读书笔记 | 理想国</title>
+  <meta name="description" content="TODO 深入了解SeparableConv、DepthwiseConv、BatchNormalization的计算公式和操作。 如何对模型进行集成。找一些kaggle的例子。 word2vec算法是什么 循环神经网络中使用dropout的原理 L-BFGS算法是什么  第四章 机器学习基础现在dropout操作用的很多，但是我之前全部都理解错了，在训练的时候加上dropout，它会屏蔽一部分的节">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《Python深度学习》读书笔记">
+<meta property="og:url" content="http:&#x2F;&#x2F;joeltsui.github.io&#x2F;2019&#x2F;11&#x2F;25&#x2F;python-deep-learning&#x2F;index.html">
+<meta property="og:site_name" content="理想国">
+<meta property="og:description" content="TODO 深入了解SeparableConv、DepthwiseConv、BatchNormalization的计算公式和操作。 如何对模型进行集成。找一些kaggle的例子。 word2vec算法是什么 循环神经网络中使用dropout的原理 L-BFGS算法是什么  第四章 机器学习基础现在dropout操作用的很多，但是我之前全部都理解错了，在训练的时候加上dropout，它会屏蔽一部分的节">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;expo-function.jpg">
+<meta property="og:updated_time" content="2019-11-25T00:00:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;expo-function.jpg">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://joeltsui.github.io/2019/11/25/python-deep-learning/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="理想国" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/icon.ico" type="image/x-icon">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        menuSettings: {
+          zoom: "None"
+        },
+        showMathMenu: false,
+        jax: ["input/TeX","output/CommonHTML"],
+        extensions: ["tex2jax.js"],
+        TeX: {
+          extensions: ["AMSmath.js","AMSsymbols.js"],
+          equationNumbers: {
+            autoNumber: "AMS"
+          }
+        },
+        tex2jax: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      });
+    </script>
+    
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.6.1/MathJax.js"></script>
+    
+  
+  
+  
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.css">
+  
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="http://joeltsui.github.io" target="_blank">
+          <img class="img-circle img-rotate" src="/images/icon.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">joeltsui</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Deep learning engineer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> HangZhou, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/joeltsui" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>码农</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+
+    
+      
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled ">
+        
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2019/12/01/deep-learning-models-and-applications/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/12/01/deep-learning-models-and-applications/" class="title">《深度学习模型及应用详解》读书笔记</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-12-01T00:00:00.000Z" itemprop="datePublished">2019-12-01</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2019/11/25/python-deep-learning/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/11/25/python-deep-learning/" class="title">《Python深度学习》读书笔记</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-11-25T00:00:00.000Z" itemprop="datePublished">2019-11-25</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/10/10/blocking-nonblocking-async-sync/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/10/10/blocking-nonblocking-async-sync/" class="title">同步与异步、阻塞与非阻塞</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-10-10T00:00:00.000Z" itemprop="datePublished">2018-10-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/08/29/softmax-regression/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/08/29/softmax-regression/" class="title">机器学习实践——Softmax回归（Softmax Regression）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-08-29T00:00:00.000Z" itemprop="datePublished">2018-08-29</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/08/26/sigmoid-function/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/08/26/sigmoid-function/" class="title">机器学习实践——Logistic回归（Logistic Regression）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-08-26T00:00:00.000Z" itemprop="datePublished">2018-08-26</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-python-deep-learning" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      《Python深度学习》读书笔记
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2019/11/25/python-deep-learning/" class="article-date">
+	  <time datetime="2019-11-25T00:00:00.000Z" itemprop="datePublished">2019-11-25</time>
+	</a>
+</span>
+        
+        
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/11/25/python-deep-learning/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h2><ol>
+<li>深入了解<strong>SeparableConv</strong>、<strong>DepthwiseConv</strong>、<strong>BatchNormalization</strong>的计算公式和操作。</li>
+<li>如何对模型进行集成。找一些kaggle的例子。</li>
+<li>word2vec算法是什么</li>
+<li>循环神经网络中使用dropout的原理</li>
+<li><code>L-BFGS</code>算法是什么</li>
+</ol>
+<h2 id="第四章-机器学习基础"><a href="#第四章-机器学习基础" class="headerlink" title="第四章 机器学习基础"></a>第四章 机器学习基础</h2><p>现在<code>dropout</code>操作用的很多，但是我之前全部都理解错了，在训练的时候加上<code>dropout</code>，它会屏蔽一部分的节点，在测试的时候不会屏蔽，但是输出的时候要乘以<code>dropout</code>的比率系数。（这个是为什么？？测试的就是就是为了检验整个模型的效果啊，也不训练参数，为啥要乘以比率）</p>
+<h2 id="第五章-深度学习用于计算机视觉"><a href="#第五章-深度学习用于计算机视觉" class="headerlink" title="第五章 深度学习用于计算机视觉"></a>第五章 深度学习用于计算机视觉</h2><p>本章对我来说收益最大的是卷积神经网络的可视化。主要有三种可视化，1. 是把每一层的激活层的输出可视化，它表示经过神经网络之后，每一层的输出结果是什么。从这个可以看出来，前面的层主要是一些边缘探测器，它几乎保留了原始图像中的所有信息，随着层数的增加，提取的信息越来越抽象，越来越难以直观的理解，还有一种现象就是随着层数增加，越来越多的输出是空白的，也就是这些过滤器没有找到图像中符合的编码信息。2. 是可视化过滤器，我最开始的想法是，过滤器不就是每个卷积网络的kernel这些吗？这些不就是过滤器吗？但是这个有点过于底层，其实我们最想知道的是某一层的整体的过滤效果，而不是单个的，单个的其实很难看出什么东西。所以这里用了很巧妙的一种方法就是，我构建随机图像，然后经过过滤器，那么，当我的输入和过滤器的模式一样的时候，这样的响应是最大的，有点像模版匹配。可以利用梯度上升法，将这一层的输出相对于输入求导，然后沿着输出值最大的方向改变输入的值，使得最后的输出最大，最后得到的输入图像就是过滤器了。这部分能够看出的信息其实和第一部分是差不多的。3. 是类激活的热力图，也就是每一个像素，它预测是属于哪一种类，预测的概率是多少，这样可以看看哪些像素比较重要。该方法基于 <strong><em>Grad-CAM: visual explanations from deep networks via gradient-based localization</em></strong> 论文。主要的思路如下，卷积层的输出其实代表的就是原始图像中剩余的信息，剩余的信息就是比较重要的信息，重要性就体现在了特征图的值上，但是输出的通道很多，有512层，有128层，怎么把这些层合并成一层，然后映射到输入图像上呢。不同的层对于最后的预测结果的影响是不同的，那么按照这个影响的权重进行相加就是合理的，因此可以求出特征图中的每一层相对于最后预测的类别的梯度代表着它的重要性系数，然后把卷积层的输出进行叠加就可以了。</p>
+<p>在<code>keras</code>中，其实并不是模型为导向的，平时写模型，都是基于模型的思维在计算梯度、loss函数之类的，其实还可以基于<code>function</code>来计算，通过指定输入和输出的<code>Tensor</code>，可以生成<code>function</code>，然后和模型中用到的计算思路一样，每一次输入输入，得到输出。</p>
+<h2 id="第六章-深度学习用于文本和序列"><a href="#第六章-深度学习用于文本和序列" class="headerlink" title="第六章 深度学习用于文本和序列"></a>第六章 深度学习用于文本和序列</h2><h3 id="处理文本数据"><a href="#处理文本数据" class="headerlink" title="处理文本数据"></a>处理文本数据</h3><blockquote>
+<p>将文本分解而成的单元（单词、字符、n-gram）叫做标记（token），分解的过程叫做分词（tokenization），再将分词的结果进行数值向量化，数值向量化的方法有<strong>one-hot</strong>编码和<strong>token embedding</strong></p>
+</blockquote>
+<p>在图像相关的处理中，我们也会对标签进行one-hot编码，这种编码对于token比较少的情况是比较适用的，一旦量大了就会形成稀疏矩阵，这个不太好处理。</p>
+<p>所谓的token embedding其实是对原始的toekn进行进一步的加工，我觉得可以理解为在one-hot的基础上对信息进行进一步的降维。</p>
+<p>词向量位于词向量空间中，不同领域的词向量空间的表示是不一样的，比如法律文书和日常用语。<strong>词向量之间的距离能够反应出不同词之间的语义差别</strong>，比如精度和准确度，有时候是可以互换的，我们就希望它们的向量距离也非常小。同时，我们还希望<strong>词向量是有方向的</strong>，比如cat、dog、wolf、tiger，从cat到tiger的向量与从dog到wolf的向量相等，这个向量可以解释为从宠物到野生动物向量。当然还可以有其他的角度。</p>
+<p>根据不同的目的我们会尝试去构建不同的词向量空间。</p>
+<p>但是有些时候我们没有足够的数据去训练任务相关的词向量空间，这个时候就可以复用已有的结果了，因为很多的较为底层的特征是通用的。比如word2vec、GloVe等。</p>
+<h3 id="循环神经网络"><a href="#循环神经网络" class="headerlink" title="循环神经网络"></a>循环神经网络</h3><h4 id="简单的RNN"><a href="#简单的RNN" class="headerlink" title="简单的RNN"></a>简单的RNN</h4><p><strong>前馈网络</strong>处理数据的前提假设是数据都是独立的，数据和数据之间是没有什么关系的。但是对于序列数据来说，前面的数据是可以作为后面数据的前提的，数据之间是存在一定关系的。这就需要<strong>循环神经网络</strong>，它其实就是除了当前的状态，还需要加上前一时刻的状态，简单来说就是下面的公式</p>
+<script type="math/tex; mode=display">
+output_t = tanh(dot(W, input_t) + dot(U, state_t) + b)</script><p>对于循环神经网络而言，它的返回值有两种形式，一种是把产生的中间结果也都返回，比如<script type="math/tex">t_1</script>到<script type="math/tex">t_n</script>，中间有<script type="math/tex">t_2</script>、<script type="math/tex">t_3</script>等等都返回，另一种就是只返回最后的<script type="math/tex">t_n</script>的结果。在多个循环网络进行叠加的时候，前面的训练网络要把所有的输出都返回，最后一个循环看情况要不要把所有的都返回。</p>
+<p>上述的公式中存在一个问题，就是我只加入了前一时刻的信息，而随着网络不断往后，会出现梯度消失的问题，难以记住较为以前的信息，无法学习到长期依赖，没有什么实用价值。</p>
+<h4 id="LSTM"><a href="#LSTM" class="headerlink" title="LSTM"></a>LSTM</h4><p>因此出现了<strong>长短期记忆(LSTM)</strong>算法。</p>
+<p>理解<strong>LSTM</strong>算法是本章的重点。</p>
+<p>通过<a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/" target="_blank" rel="noopener">这篇文章</a>可以很好的理解整个的工作原理，其实最本质的就是在上面的RNN网络的基础上，怎么把长期信息也加上去，不会把远点的信息给忘记。</p>
+<p>首先在传统神经网络中，我们把输入数据输入到网络层中，产生结果，然后到下一层中</p>
+<script type="math/tex; mode=display">
+output_t = tanh(W_{ft} \dot x_t + b_t)</script><p>然后为了把前面的信息加进来就引入了上一个输出结果的状态，构建了简单的RNN网络。</p>
+<script type="math/tex; mode=display">
+output_t = tanh(W_{ft} \dot ([h_{t-1}, x_t]) + b_t)</script><p>但是这种还不够，还需要引入长期信息的记忆能力，上面的功能只是把上一层的信息传递到后面一层去，能力还是不够。所以LSTM在这个基础上增加了一条线路，可以把很远的地方的信息也输送过来。在这个基础上构建了更为复杂的LSTM网络。</p>
+<p>现在就有这么几条线了：输入(<script type="math/tex">x_t</script>)、前一时刻的状态(<script type="math/tex">h_{t-1}</script>)、前序数据输送带(<script type="math/tex">C_t</script>)、输出(<script type="math/tex">output_t</script>)</p>
+<p>但是每一条线的信息都需要判断是否要采用，LSTM里面用了很多的所谓的<code>门电路</code>，保留这部分的信息还是过滤这部分的信息。</p>
+<p>首先是前一步的<script type="math/tex">C_{t-1}</script>的信息门电路，<script type="math/tex">f_t = \sigma(W_{ft} \dot [h_{t-1},x_t] + b_{ft})</script>，这个会产生一个<script type="math/tex">[0,1]</script>范围内的值，然后和<script type="math/tex">C_{t-1}</script>相乘，可以控制这条信息流传递下去的量，这是安装的第一个阀门。</p>
+<p>然后是属于该层的层操作，输入输入数据和前一时刻的状态，输出该层的运算结果，但是这个也得加一个阀门，来控制当前层提取到的信息保留多少，这部分产生的数据会和<script type="math/tex">C_{t-1}</script>层的数据相加，得到<script type="math/tex">C_t</script>。</p>
+<p>第三个阀门就是控制输出，<script type="math/tex">C_t</script>产生以后一方面进入前序信息携带通道，另一方面再经过计算生成当前时刻的状态，这个状态还得再加一个阀门，控制它最后产出<script type="math/tex">h_t</script>。</p>
+<p>这就是LSTM网络了，<strong>本质上就是在简单的RNN基础上加了三个阀门</strong></p>
+<p>在用算法解决问题的时候，应该尽可能构建一个简单的模型先，然后以这个模型为基准，不断构建复杂的模型，复杂的模型至少要比基准模型好才可以。</p>
+<p>在本书的观察耶拿天气数据中，首先提出了基于简单假设的方法，也就是温度时间序列是连续的，第二天的温度理论上会接近当天的温度，然后在天的角度也有周期性的波动，因此第二天的温度就等于今天的温度。然后提出基于深度学习的全连接的解决方案，结果发现第二种方法和第一种方法差不多。也就是说，如果数据到目标是一个简单且表现良好的模型，但是基于深度学习这个更复杂的模型却没有找到更简单的模型，理论上更简单的模型是包含在模型空间中的，这里面的原因是，我们并没有把更简单这个假设包括在训练过程中，所以很难学习到简单且性能良好的模型。</p>
+<p>在循环神经网络中，如果和卷积神经网络中一样使用，会妨碍训练过程，并没有什么用处。循环神经网络中怎么加dropout</p>
+<h4 id="双向RNN"><a href="#双向RNN" class="headerlink" title="双向RNN"></a>双向RNN</h4><p>如果说一种序列，并不是强前向的，那么可以考虑把反向数据输入进行训练，说不定能提升效果，但是强正向的数据就没啥用了。</p>
+<h3 id="用卷积网络处理序列"><a href="#用卷积网络处理序列" class="headerlink" title="用卷积网络处理序列"></a>用卷积网络处理序列</h3><p>2D的卷积神经网络提取的是空间的信息，同样，可以用1D的卷积神经网络去提取序列信息，这个所谓的提取本质上其实就是信息的压缩，从冗余的低级信息中抽象出更高级的信息，1D可以依然保持信息的顺序，但是这种顺序是非常粗浅的顺序，对于一些简单一点的任务还好，复杂的就不行了。不过书中写道在音频生成和机器翻译领域取得了巨大的成功，这个就不太理解了。小型的1D卷积神经网络有个好处就是计算代价相比于RNN来说很低，因此，其实可以把1D卷积神经网络和RNN进行结合，先用1D卷积神经网络从低级信息提取出高级信息，就跟token embedding的思路一样。</p>
+<h2 id="第七章-高级的深度学习最佳实践"><a href="#第七章-高级的深度学习最佳实践" class="headerlink" title="第七章 高级的深度学习最佳实践"></a>第七章 高级的深度学习最佳实践</h2><h3 id="多模态模型构建"><a href="#多模态模型构建" class="headerlink" title="多模态模型构建"></a>多模态模型构建</h3><p>在前面几章的，构建模型都是用的<code>Sequential</code>模块，把一层一层的<code>layer</code>叠加在一起，只有一个输入一个输出，但是实际上在构建模型的时候，常常会遇到多输入或者多输出的情况，还有一些中间比较复杂的模块，这个时候就要用到<code>Model</code>模块了。在<code>keras</code>中有两种模块，分别是<code>Mode</code>和<code>Network</code>，<code>Network</code>只包括网络的结构，而<code>Model</code>在这个基础上还包括了训练的部分。之前写代码我只关心整个的网络结构，训练的部分都是手工进行，这样写代码就有点不优雅。之前之所以手工写，是因为官网的例子都是很简单的例子，多输入多输出的情况都很少，在多种输入和输出的情况下，应该怎么计算loss，怎么把不同的输入和不同的输出进行对应，这点我没有想明白。其实很简单，就是每一层都有名字，输入输出层也有自己的名字，在输入对应数据的时候，通过<code>dict</code>类型进行赋值或对应。如下代码所示，同理可得，也可以分别计算loss。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">brancha = Input(shape=(<span class="number">300</span>,<span class="number">300</span>,<span class="number">3</span>), name=<span class="string">"brancha"</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">branchb = Input(shape=(<span class="number">300</span>,<span class="number">300</span>,<span class="number">3</span>), name=<span class="string">"branchb"</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">xa = Dense(<span class="number">32</span>,<span class="number">3</span>,activation=<span class="string">"relu"</span>)(brancha)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">xb = Dense(<span class="number">32</span>,<span class="number">3</span>,activation=<span class="string">"relu"</span>)(branchb)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line">x = Concatenate()([xa, xb])</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">8</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">9</span></pre></td><td class="code"><pre><span class="line">outputa = Dense(<span class="number">32</span>,<span class="number">3</span>,activation=<span class="string">"softmax"</span>, name=<span class="string">"outputa"</span>)(x)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">10</span></pre></td><td class="code"><pre><span class="line">outputb = Dense(<span class="number">32</span>,<span class="number">3</span>,activation=<span class="string">"softmax"</span>, name=<span class="string">"outputb"</span>)(x)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">11</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">12</span></pre></td><td class="code"><pre><span class="line">model = Model(inputs=[brancha, branchb], outpus = [outputa, outputb])</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">13</span></pre></td><td class="code"><pre><span class="line"></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">14</span></pre></td><td class="code"><pre><span class="line">model.fit(&#123;<span class="string">"brancha"</span>:inputa,<span class="string">"branchb"</span>:inputb&#125;,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">15</span></pre></td><td class="code"><pre><span class="line">          &#123;<span class="string">"outputa"</span>:outputa, <span class="string">"outputb"</span>:outputb&#125;,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">16</span></pre></td><td class="code"><pre><span class="line">          epochs=<span class="number">10</span>, batch_size=<span class="number">10</span>)</span></pre></td></tr></table></figure>
+<p>另一方面，我从最开始写模型是通过继承<code>Model</code>这个类，然后分别写好每一层，设置好参数，然后在<code>__call__</code>中调用这些定义好的层。这在面向对象的逻辑中是成立的，但是在这里实际操作的时候就不好操作，首先，不同模型之间的复用就会变得很麻烦，会行程模型一层嵌套一层，最后把整个代码弄的很复杂，同时这么写的话，就需要考虑自己推断从输入的shape到输出的shape，同时很多的函数也没办法调用，比如<code>summary()</code>等。所以现在我转换了策略，我依然继承<code>Model</code>，但是我在初始化的时候，通过构建输入与输出，然后把构建的<code>inputs</code>和<code>outputs</code>传入到父类中去构建出整个的模型。这样，既能根据不同的模型加入不同的参数，也能用现成的keras模型。</p>
+<h3 id="有用的结构和卷积"><a href="#有用的结构和卷积" class="headerlink" title="有用的结构和卷积"></a>有用的结构和卷积</h3><p>在做卷积操作的时候，其实有两步：1.是在同一层中，用同一个卷积核遍历该特征层；2.在不同的特征层中进行运算求和。前者叫空间特征，后者叫通道特征。<strong>1x1卷积</strong>就是计算的通道特征，<strong>SeparableConv</strong>和<strong>DepthwiseConv</strong>就是计算的空间的特征。</p>
+<p>上述提到的非线性的模块包括了Inception模块和residual模块。residual模块之所以效果这么好一方面是因为加了shortcut模块，因为在进行卷积操作的时候，其实是把一些特征丢失的，很多丢失的信号是没办法复原的。比如把音频中的低频信号去掉，就没办法恢复了。shortcut模块可以把前面的信息再加回去。另一方面这个通道也能够在反向传播的时候发挥作用，减缓出现梯度消失的情况。</p>
+<p>书中还提到一种情况，虽然有两个输入，但是两个输入的属性一样，比如要评估两个句子之间的语意相似度，因为两个输入的句子是可以互换的，他们的相似度是对称关系，不能说用两个网络分别去处理，因为他们是把句子映射到同一特征空间，所以会用同一个模型去分别走两个句子，然后得到的结果再去评估句子的相似度。处理两个摄像头的特征也是同理。只不过这部分在实际的应用中我还没有见到。</p>
+<h3 id="回调函数"><a href="#回调函数" class="headerlink" title="回调函数"></a>回调函数</h3><p>回调函数的作用其实很多方面，有一点我没有想到，就是可以设置提前训练结束还有根据loss函数，梯度等动态调整learning rate等。</p>
+<h3 id="进一步提升模型的性能"><a href="#进一步提升模型的性能" class="headerlink" title="进一步提升模型的性能"></a>进一步提升模型的性能</h3><h4 id="批处理"><a href="#批处理" class="headerlink" title="批处理"></a>批处理</h4><p>对输入数据进行标准化，可以剔除一些无关紧要的特征的影响，专注于整个图像的分布不同进行推理得到结果。从每一层的特征图出发，其实和从输入层出发一样，也需要进行标准化，可以怎么标准化，之前在ResNet中用了一组RGB的数字是统计了ImageNet的图片得到的均值和方差值。所以在<code>BatchNormalization</code>的计算中，不断更新均值等，在训练过程中保存已读取的每批的数据均值和方差的指数移动平均值，它有利于梯度传播，因此运行更深的网络。</p>
+<h4 id="超参数优化"><a href="#超参数优化" class="headerlink" title="超参数优化"></a>超参数优化</h4><p>超参数优化需要注意的点就是，我们要用验证集来调整，不要基于测试集，不然就没啥用了，容易出现过拟合。</p>
+<p>文中也推荐了超参数优化的库：<strong>Hyperopt</strong>，它的内部使用Parzen估计器来预测哪组超参数更好。还有一种和keras结合的<strong>Hyperas</strong>库，也可以尝试一下。</p>
+<h4 id="模型集成"><a href="#模型集成" class="headerlink" title="模型集成"></a>模型集成</h4><p>模型之所以集成，是因为不同的模型从不同的侧面反应出事物的不同方面。就像盲人摸象，一个模型摸到一个地方，另一个模型摸到另一个地方，然后集成，最后勾勒出整个大象的形状。但是也不能都摸到大象的鼻子，这样的集成是没有用的，必须要保证模型的多样性，不同的模型，偏差向不同的地方。</p>
+<p><strong>但是，怎么去评估各个模型的得分，效果呢？</strong>，去kaggle上多找一些例子看看。</p>
+<h2 id="第八章-生成式深度学习"><a href="#第八章-生成式深度学习" class="headerlink" title="第八章 生成式深度学习"></a>第八章 生成式深度学习</h2><h3 id="使用LSTM生成文本"><a href="#使用LSTM生成文本" class="headerlink" title="使用LSTM生成文本"></a>使用LSTM生成文本</h3><p>在本节中，通过LSTM网络构建模型，在网络的最后是一层softmax层，输出各个单词的概率，但是并没有直接使用这个概率，而是在这个基础上对这个概率进行了随机采样，也就是根据概率值生成样本，然后选择出现次数最多的那个，出现次数的多少取决于概率，但是每次的结果不一样，只能说出现某个值的概率更大一些。然后又引入了一个参数<script type="math/tex">t</script>，对原来的概率分布进行重排，可以用来控制生成的字符<em>更随机</em>或者<em>更不随机</em>，所谓的<em>更不随机</em>就是更加符合我们从训练样本中得到的样本空间的分布。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sample</span><span class="params">(preds, t = <span class="number">1.0</span>)</span>:</span></span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">    preds = np.asarray(preds).astype(<span class="string">'float64'</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">    preds = np.log(preds) / t</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">    exp_preds = np.exp(preds)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">    preds = exp_preds / np.sum(exp_preds)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line">    probas = np.random.multinominal(<span class="number">1</span>, preds, <span class="number">1</span>)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">7</span></pre></td><td class="code"><pre><span class="line">    <span class="keyword">return</span> np.argmax(probas)</span></pre></td></tr></table></figure>
+<p>倒数第二行代码其实是根据<code>preds</code>的分布来采样，会得到和<code>preds</code>的长度一样的一个数组，数组里面的数字代表的是出现在这个位置上的样本次数，我们选择出现样本次数最大的这个索引，然后找到相应的字符。</p>
+<p>上述的这个参数<code>t</code>为什么能够改变原来的概率分布，<strong><code>t</code>的取值范围是(0,1]，值越大，那么得到的熵越大，越不确定</strong>。</p>
+<p>我们来看下图</p>
+<p><p align="center"><img src="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/expo-function.jpg" alt="指数函数" title style/></p>
+<p>当我们进行<script type="math/tex">\log</script>运算以后，概率越大的部分，生成的值越小，最后处以<script type="math/tex">t</script>以后值就越大，概率大的值和概率小的值之间的差距会随着<script type="math/tex">t</script>变小而变大，然后在作用一个<script type="math/tex">e^x</script>操作，又把数值变到<script type="math/tex">[0,1]</script>之间。总结来说就是<script type="math/tex">t</script>很小的时候，原来概率越小的部分，在变换以后概率会变得更加小，大概率值与小概率值之间的差距就会变大，也就是说越来越偏向于大概率的值，最后输出的结果也就越确定，熵就会越小**</p>
+<h3 id="DeepDream"><a href="#DeepDream" class="headerlink" title="DeepDream"></a>DeepDream</h3><p>DeepDream的原理其实和之前的神经网络的可视化是差不多的，就是说神经网络通过数据的学习到了模型的参数，这个参数能从图片中提取出相关的信息。通过ImageNet训练出来的模型有非常多的分类，因此有很多针对不同物体的不同的核，我们把这些信息提取出来然后画到原来的图上去。本质上还是那一套，只不过现在是用的层数更多了，并且在不同尺度上对特征进行了综合，然后为了保证清晰度，把图片放大缩小后又不断把细节填充进去。训练过程也是一样，原来的训练过程是在一张白纸上通过梯度上升，求的响应最大值，现在也是利用梯度上升。loss函数直接求的就是指定的几个输出层，毕竟最后的结果也是求得这几层的最大响应。<strong>为了避免出现边界伪影，只包含非边界像素</strong>，这种做法在好几个地方都看到了。</p>
+<h3 id="神经风格迁移"><a href="#神经风格迁移" class="headerlink" title="神经风格迁移"></a>神经风格迁移</h3><p>风格迁移的过程分为两步，一部分是我们要保存我们的目标图像的内容，这个目标图像也就是我们的输入图像，我们希望在这个图像上进行操作，同时呢，我们又想把参考图像的风格加入到我们的目标图像中，这两个分别就是图像的内容和风格的部分，抽象出来就是要保证内容损失和风格损失最小，内容风格是和目标图像进行对比，风格损失是和参考图像进行对比。内容比较好理解，我们可以选取更深层的网络层，浅层表示的是局部的浅特征，深层次的网络模型表示的是全局的更抽象的图像内容。风格其实就是图像的纹理，而所谓的纹理就是图像内部的相互关系。风格也可以在不同的纬度来表现，因此，风格的损失我们选取多层网络输出进行计算。</p>
+<p>内容损失比较好计算，直接比较在深层中的网络输出的值。风格的损失要求出一张图像内部的特征关系，这里用到了所谓的Gram Matrix，其实就是求水平向量两两之间的相似度，这就是一张图片的内部关系，然后比较一下生成图像和参考图像之间的差值。<strong>同时提到为了促使生成的图像具有空间连续性，避免结果过度像素化，增加一个总变差损失，其实就是希望前后两个像素差别不要太大，变化具有连续性，分别在<code>x</code>和<code>y</code>方向进行计算。</strong>不同的损失值有不同的系数，用于控制更偏向于哪个方面。</p>
+<p>我们在平时中用到的以<code>SGD</code>方法，这在数据量比较大的时候用处比较大，数据量比较小的时候可以选择<code>L-BFGS</code>算法。</p>
+<h3 id="用变分自编码器生成图像"><a href="#用变分自编码器生成图像" class="headerlink" title="用变分自编码器生成图像"></a>用变分自编码器生成图像</h3><p>变分自编码器(VAE, variational autoencoder)，就是把图片映射到一个向量空间，这个向量空间通过平均值和方差来表示，这个过程称之为<strong>编码器</strong>，然后在这个向量空间中我们选择生成的均值和方差值（这个方差值增加一些噪声），再把它还原成原来的图片，这个过程称之为<strong>解码器</strong>。这个就是整个模型的组成部分。这个的训练过程就是只有最后比较一下生成的图像和原始的图像之间的差距。不需要外部额外计算的其他loss，是一种不需要标注集的训练。</p>
+<p>VAE得到的是高度结构化的，连续的潜在表示，比如沿着一个横截面移动，可以实现以连续的方式显示一张起始图像缓慢变化为不同图像的效果。</p>
+<p>主要原因是最后的潜在空间压缩的比较厉害，所以有种类似于主成分析中，生成的分别就会趋向于连续变化的主要成分分量。</p>
+<h3 id="生成式对抗网络"><a href="#生成式对抗网络" class="headerlink" title="生成式对抗网络"></a>生成式对抗网络</h3><p>生成式对抗网络(GAN, generative adversarial network)，它主要也是两个部分，一个是<strong>生成器网络</strong>，另一个是<strong>判别器网络</strong>，生成器网络从随机空间中选取随机数生成一幅图像，然后把这些图像和真实图像混在一起输入到判别器网络，判别器网络去判断是真是假。</p>
+<script type="math/tex; mode=display">
+gan = discriminator(generator(x))</script><p>GAN网络的训练是一个动态的过程，生成器会变化，判别器会变化。很难训练，需要对模型架构和训练参数进行很多的微调。GAN的训练方法有一些技巧，详情见该书的P259.</p>
+<p>GAN网络在训练的过程中要保持判别器的参数不变，判别器的训练是单独训练的，和GAN网络分开。</p>
+<h2 id="第九章-总结"><a href="#第九章-总结" class="headerlink" title="第九章 总结"></a>第九章 总结</h2><p>总的来说，现阶段的深度学习其实是局部泛化，也就是说我喂进去什么数据，只能基于这个进行简单的泛化，比如输入识别人的数据，就不能识别其他动物。而人类的意识其实是极端泛化，我们不需要反复的看很多数据，能够通过<strong>抽象</strong>和<strong>推理</strong>进行更宽泛的泛化，所以，如果要实现人类一样的智慧，现在的这种方法肯定是不行的。</p>
+<p>想要实现模型的复用其实很难，模型结构可以复用，可是模型参数怎么办，模型参数是根据不同的任务训练的，是没办法复用的，所以现阶段的这种形式肯定是初级阶段的。</p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://joeltsui.github.io/2019/11/25/python-deep-learning/" title="《Python深度学习》读书笔记" target="_blank" rel="external">http://joeltsui.github.io/2019/11/25/python-deep-learning/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="http://joeltsui.github.io" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/icon.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="http://joeltsui.github.io" target="_blank"><span class="text-dark">joeltsui</span><small class="ml-1x">Deep learning engineer</small></a></h3>
+        <div>码农。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2019/12/01/deep-learning-models-and-applications/" title="《深度学习模型及应用详解》读书笔记"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2018/10/10/blocking-nonblocking-async-sync/" title="同步与异步、阻塞与非阻塞"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,wechat" data-mobile-sites="weibo,wechat"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/joeltsui" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2019 Joel Tsui
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'ae1aeae9d231bf54430e',
+    clientSecret: 'cabc2c8374879885b8c59bac4567e3e3b2f5362a',
+    repo: 'joeltsui.github.io',
+    owner: 'joeltsui',
+    admin: ['joeltsui'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+    <script defer type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-151940991-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?4554cf1badd940edd310d2211ab8b2f3";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+    <script defer type="text/javascript" src="//tajs.qq.com/stats?sId=66487444" charset="UTF-8"></script>
+
+
+</body>
+</html>

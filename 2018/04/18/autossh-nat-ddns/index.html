@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  <!--  if (theme.douban.user && page.layout === 'books') {  -->
+  <!-- <meta name="referrer" content="never"> -->
+  <!--  }  -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>SSH端口转发及内网穿透总结 | 理想国</title>
+  <meta name="description" content="0x00 前言IPV4下，公网IP是奢侈的资源，就算是家里的宽带也不一定能有公网IP，为了能够远程连接家里的Ubuntu，就需要进行内网穿透。 已有的方案包括很多，其中TeamViewer、VNC还能做到可视化界面，但是平时的开发并不需要这么重，界面传输反而会加重网络的负担。ngrok、花生壳也可以实现，但是前者很麻烦，后者收费。 用SSH实现就非常的优雅，并且可以进行很多的扩展。 0x01 什么">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSH端口转发及内网穿透总结">
+<meta property="og:url" content="http:&#x2F;&#x2F;joeltsui.github.io&#x2F;2018&#x2F;04&#x2F;18&#x2F;autossh-nat-ddns&#x2F;index.html">
+<meta property="og:site_name" content="理想国">
+<meta property="og:description" content="0x00 前言IPV4下，公网IP是奢侈的资源，就算是家里的宽带也不一定能有公网IP，为了能够远程连接家里的Ubuntu，就需要进行内网穿透。 已有的方案包括很多，其中TeamViewer、VNC还能做到可视化界面，但是平时的开发并不需要这么重，界面传输反而会加重网络的负担。ngrok、花生壳也可以实现，但是前者很麻烦，后者收费。 用SSH实现就非常的优雅，并且可以进行很多的扩展。 0x01 什么">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;ssh_0904.gif">
+<meta property="og:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;ssh_0905.gif">
+<meta property="og:updated_time" content="2018-04-18T00:00:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;ssh_0904.gif">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://joeltsui.github.io/2018/04/18/autossh-nat-ddns/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="理想国" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/icon.ico" type="image/x-icon">
+  
+  <link rel="stylesheet" href="/css/style.css">
+    
+  
+  
+  
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.css">
+  
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="http://joeltsui.github.io" target="_blank">
+          <img class="img-circle img-rotate" src="/images/icon.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">joeltsui</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Deep learning engineer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> HangZhou, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/joeltsui" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>码农</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+
+    
+      
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled ">
+        
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2019/12/01/deep-learning-models-and-applications/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/12/01/deep-learning-models-and-applications/" class="title">《深度学习模型及应用详解》读书笔记</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-12-01T00:00:00.000Z" itemprop="datePublished">2019-12-01</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2019/11/25/python-deep-learning/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/11/25/python-deep-learning/" class="title">《Python深度学习》读书笔记</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-11-25T00:00:00.000Z" itemprop="datePublished">2019-11-25</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/10/10/blocking-nonblocking-async-sync/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/10/10/blocking-nonblocking-async-sync/" class="title">同步与异步、阻塞与非阻塞</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-10-10T00:00:00.000Z" itemprop="datePublished">2018-10-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/08/29/softmax-regression/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/08/29/softmax-regression/" class="title">机器学习实践——Softmax回归（Softmax Regression）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-08-29T00:00:00.000Z" itemprop="datePublished">2018-08-29</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/08/26/sigmoid-function/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/08/26/sigmoid-function/" class="title">机器学习实践——Logistic回归（Logistic Regression）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-08-26T00:00:00.000Z" itemprop="datePublished">2018-08-26</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-autossh-nat-ddns" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      SSH端口转发及内网穿透总结
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2018/04/18/autossh-nat-ddns/" class="article-date">
+	  <time datetime="2018-04-18T00:00:00.000Z" itemprop="datePublished">2018-04-18</time>
+	</a>
+</span>
+        
+        
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2018/04/18/autossh-nat-ddns/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>IPV4下，公网IP是奢侈的资源，就算是家里的宽带也不一定能有公网IP，为了能够远程连接家里的Ubuntu，就需要进行内网穿透。</p>
+<p>已有的方案包括很多，其中TeamViewer、VNC还能做到可视化界面，但是平时的开发并不需要这么重，界面传输反而会加重网络的负担。ngrok、花生壳也可以实现，但是前者很麻烦，后者收费。</p>
+<p>用SSH实现就非常的优雅，并且可以进行很多的扩展。</p>
+<h2 id="0x01-什么是SSH"><a href="#0x01-什么是SSH" class="headerlink" title="0x01 什么是SSH"></a>0x01 什么是SSH</h2><p>SSH表示的是一种网络协议，它定义了一种通过网络建立安全通信的方法，SSH协议从1995年提出以来，演化出了两个大版本，分别是SSH-1和SSH-2.两个版本并不兼容，SSH-2相比于SSH-1安全性更高，并且增加了一些特性。</p>
+<p>SSH采用的是client/server模型，通过在client和server之间建立加密通道，从认证、加密和数据的完整性三个方面保障通信安全。</p>
+<blockquote>
+<p>SSH协议及基于其开发的产品在名称上很容易混淆，先进行简单的说明。<br>SSH-1/SSH-2 表示的是协议。<br>SSH1/SSH2表示的是基于SSH1和SSH2协议开发的产品<br>ssh/ssh1/ssh2等表示的是客户端程序<br>OpenSSH是OpenBSD项目的一个产品，它实现了SSH-1和SSH-2协议。</p>
+</blockquote>
+<h2 id="0x02-SSH的端口转发"><a href="#0x02-SSH的端口转发" class="headerlink" title="0x02 SSH的端口转发"></a>0x02 SSH的端口转发</h2><p>平时我们用的最多的就是通过SSH实现远程登陆，以及通过scp传输文件。</p>
+<p>通过SSH协议我们可以在两个计算机之间建立一个安全通道，并且这个通道是双向的。基于这个通道可以实现端口的转发。也就是将这个通道给其他的应用使用，而不仅仅是SSH。</p>
+<p><p align="center"><img src="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/ssh_0904.gif" alt="SSH通道建立" title style/></p>
+<h3 id="本地端口转发"><a href="#本地端口转发" class="headerlink" title="本地端口转发"></a>本地端口转发</h3><p>假设，我有个服务运行在远程服务器上，如上图中的Host B，这个服务会监听远程服务器的143端口，当有消息过来的时候进行处理。</p>
+<p>在本地有个应用程序的客户端，它可以通过TCP/IP与远程服务进行通信。现在我希望本地的客户端程序通过SSH隧道进行通信。</p>
+<p>就可以使用以下的命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">ssh -L &lt;localhost&gt;:&lt;localport&gt;:&lt;remotehost&gt;:&lt;remoteport&gt; &lt;SSH hostname&gt;</span></pre></td></tr></table></figure><br><code>-L</code>表示”local forwarding”，<code>localhost</code>表示本机地址，<code>localport</code>表示本地端口，<code>remotehost</code>表示远程服务主机地址，<code>remoteport</code>表示远程服务的监听端口，也就是说把所有发送到本地的端口的数据都转发到远程服务器的端口上。然后在本地的应用程序上配置代理到本地端口。</p>
+<p><p align="center"><img src="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/ssh_0905.gif" alt="SSH通道建立" title style/></p>
+<p>但是，实际的使用中，我们省略了<code>localhost</code>，并且用<code>localhost</code>代替<code>remotehost</code>，这是为什么呢？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">ssh -L &lt;localport&gt;:localhost:&lt;remoteport&gt; &lt;SSH hostname&gt;</span></pre></td></tr></table></figure></p>
+<p>第一个<code>localhost</code>保留和去掉的含义不太一样，如果保留<code>localhost</code>，表示只能本地的用户链接到这个端口，通过这个端口转发数据，如果你想通过Host C然后把数据通过Host A转发到Host B，这是不允许的。但是可以通过配置中的<code>GatewayPorts</code>来改变默认值，或者在命令中加<code>-g</code>。或者直接去掉，或者额用”*”代替。</p>
+<p>为了回答第二个问题，需要先问：<code>remotehost</code>和<code>SSH hostname</code>一定要同一台机器吗？其实不用。<code>remotehost</code>和<code>remoteport</code>只要是<code>SSH hostname</code>可以访问的机器和端口就可以。</p>
+<p>其实整个的端口转发过程分成两部分，一部分是在客户端这边，将发往本地端口的数据都通过SSH隧道发送到SSH server上。然后server上再把数据发送到<code>remotehost:remoteport</code>上。也就是说前半部分是SSH的客户端的参数，后半部分是SSH服务端的参数</p>
+<p>整个的端口转发过程变成了SSH客户端和SSH服务端的数据接力。</p>
+<h3 id="远程端口转发"><a href="#远程端口转发" class="headerlink" title="远程端口转发"></a>远程端口转发</h3><p>首先需要注意的是，不管是远程端口转发还是本地端口转发，都是在本地机器上进行的操作，也就是都是在Host A上输入的命令。远程端口转发顾名思义就是对远程的机器上的端口数据转发到本地来</p>
+<p>远程端口转发和本地端口转发的数据转发方向刚好是相反的，远程端口转发我们希望的是把所有发到远程主机端口上的数据转发到本机来。</p>
+<p>命令参数的解析也就相反了。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">ssh -R &lt;remotehost&gt;:&lt;remoteport&gt;:&lt;localhost&gt;:&lt;localport&gt; &lt;SSH hostname&gt;</span></pre></td></tr></table></figure><br><code>-R</code>表示”remote forwarding”，其余的参数含义和本地端口转发一致，但是参数的方向不同，前半部分是给SSH服务端解析的，后半部分是SSH客户端解析的。</p>
+<p>同样也能进行简化<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">ssh -R &lt;remoteport&gt;:localhost:&lt;localport&gt; &lt;SSH hostname&gt;</span></pre></td></tr></table></figure></p>
+<blockquote>
+<p>（1）SSH只能对基于TCP/IP协议的应用进行端口转发，并不支持UDP等；（2）</p>
+</blockquote>
+<h2 id="0x03-内网穿透隧道建立"><a href="#0x03-内网穿透隧道建立" class="headerlink" title="0x03 内网穿透隧道建立"></a>0x03 内网穿透隧道建立</h2><p>通过ssh实现内网穿透需要有一台有外网ip的主机，因此整个过程实际上有三个对象：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">机器代号</th>
+<th style="text-align:center">机器位置</th>
+<th style="text-align:center">用户</th>
+<th style="text-align:center">ip地址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">A</td>
+<td style="text-align:center">内网</td>
+<td style="text-align:center">user.a</td>
+<td style="text-align:center">192.168.1.155</td>
+</tr>
+<tr>
+<td style="text-align:center">B</td>
+<td style="text-align:center">外网</td>
+<td style="text-align:center">user.b</td>
+<td style="text-align:center">30.23.1.23</td>
+</tr>
+<tr>
+<td style="text-align:center">C</td>
+<td style="text-align:center">内网</td>
+<td style="text-align:center">user.c</td>
+<td style="text-align:center">192.168.1.22</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>注意，A和C虽然都在内网，但是是不同的内网。</p>
+</blockquote>
+<p>首先内网的机器是可以ssh到外网的服务器上的，那么我就希望这个通道能够一直保持，并且我能通过这个通道从外网ssh到内网来。</p>
+<p>在内网机器A上与外网机器B建立一个远程端口转发通道，当我在机器C上企图对转发端口建立SSH链接时，就会将数据转发到机器A上，这样就实现了内网穿透。</p>
+<p>通过一下命令就能实现上述的功能。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">$ ssh -fNR 1234:localhost:22 user.b@30.23.1.23</span></pre></td></tr></table></figure>
+<p><code>-N</code>表示不需要执行远程命令；<br><code>-f</code>表示建立通道后ssh到后台运行</p>
+<p>此时就能建立了一个内网上的机器和外网的机器的一个反向隧道（实际上就是一个从外网机器到内网机器的正向隧道）。</p>
+<blockquote>
+<p>注意，这里的<code>NR</code>的位置是不能错的，一定要<code>R</code>在后面，因为后面跟的是<code>R</code>的参数值。</p>
+</blockquote>
+<p>此时，你就能够在B机器上通过<code>1234</code>端口ssh到A机器上了。但是要注意以下命令中的用户名:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">$ ssh -p1234 user.a@30.23.1.23</span></pre></td></tr></table></figure>
+<h2 id="0x04-内网穿透隧道的维护"><a href="#0x04-内网穿透隧道的维护" class="headerlink" title="0x04 内网穿透隧道的维护"></a>0x04 内网穿透隧道的维护</h2><p>ssh的连接是会超时关闭的，一旦连接关闭，所谓的隧道也就不存在了，因此需要一个工具，能够在ssh连接断开的时候自动重连。</p>
+<p>autossh就是这样一个工具。</p>
+<p>所以首先需要知道ssh连接断开没有，可以通过监听某个端口来判断，一旦发现连接断开了，就重连ssh。autossh会通过发送测试数据，然后根据返回情况来判断连接情况。</p>
+<p>在autossh中就可以通过以下命令建立维护内网穿透隧道了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">$ autossh -M2345 -NR 1234:localhost:22 user.b@30.23.1.23</span></pre></td></tr></table></figure>
+<p>在autossh中，<code>-M</code>参数就是用来指定监听端口的。</p>
+<p>我们只是指定了一个<code>port</code>端口，实际上<code>port+1</code>也被征用了，一个用来发送测试数据，一个用来接收。</p>
+<p>当<code>port</code>设置为<code>0</code>时，表示关闭监控功能，这种情况下，只有当ssh退出的时候才会进行重启。最新版的OpenSSH多了一些参数，可以通过增加<code>ServerAliveInterval</code>和<code>ServerAliveCountMax</code>，确保当ssh发现没有和服务端连接的时候进行重连。</p>
+<p>autossh中也有个<code>-f</code>的参数，加了这个参数就不让你输入密码了，然后就连不上了。然后查看进程的时候就总是有它，想要在这个端口重新进行连接就没用了，死活连不上。普通的kill还没办法kill掉。通过<code>kill -9 PIDNumber</code>可以关闭它。所以如果你是通过密码进行autossh连接的时候，不要加<code>-f</code>参数。</p>
+<p>或者可以通过帮助文档中推荐的方式：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">$ autossh -M0 -o <span class="string">"ServerAliveInterval 30"</span> -o <span class="string">"ServerAliveCountMax 3"</span> -NR 1234:localhost:22 user.b@30.23.1.23</span></pre></td></tr></table></figure>
+<p>然后同理</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">$ ssh -p1234 user.a@30.23.1.23</span></pre></td></tr></table></figure>
+<p>可以借助于这个外网的机器作为跳板机，实现内网穿透。</p>
+<p>不过注意，少了<code>-f</code>的参数，是没办法在后台运行的，后台直接运行的前提是已经配置过ssh的密钥了。</p>
+<h2 id="0x05-服务器重启怎么办？"><a href="#0x05-服务器重启怎么办？" class="headerlink" title="0x05 服务器重启怎么办？"></a>0x05 服务器重启怎么办？</h2><p>首先，要应付服务器重启的情况，那肯定是不能通过输入密码的方式，这里就要用到ssh连接中的通过ssh key实现无密连接了。这个过程其他教程也写了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">$ ssh-keygen</span></pre></td></tr></table></figure>
+<p>提示输入<code>passphrase</code>的时候，直接回车，不然还是要输入密码。这个命令会生成一个私钥一个公钥。为了防止文件被覆盖，可以通过参数<code>-f</code>进行重命名密钥文件。不过记得提供完整的路径，不然会生成在当前目录下。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">$ ssh-copy-id -i /path/to/ssh-key.pub user.b@30.23.1.23</span></pre></td></tr></table></figure>
+<p>上面的命令可以吧选定的公钥文件拷贝到远程主机上，此时，就不需要输入密码就能ssh登陆远程主机了。</p>
+<p>ssh通过密钥进行登录是有默认文件的，默认情况下会通过<code>/home/user/.ssh/id_rsa</code>的私钥与远程中的进行匹配，匹配正确就不需要密码了。如果你是自定义的文件名，需要指定秘钥的路径进行免密登陆。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">$ ssh user.b@30.23.1.23 -i /path/to/ssh-key</span></pre></td></tr></table></figure>
+<p>然后可以配置脚本开机自启动。</p>
+<h2 id="ox06-其余参考链接"><a href="#ox06-其余参考链接" class="headerlink" title="ox06 其余参考链接"></a>ox06 其余参考链接</h2><p>[1] <a href="https://www.digitalocean.com/community/tutorials/how-to-install-and-manage-supervisor-on-ubuntu-and-debian-vps" target="_blank" rel="noopener">https://www.digitalocean.com/community/tutorials/how-to-install-and-manage-supervisor-on-ubuntu-and-debian-vps</a><br>[2] <a href="http://arondight.me/2016/02/17/%E4%BD%BF%E7%94%A8SSH%E5%8F%8D%E5%90%91%E9%9A%A7%E9%81%93%E8%BF%9B%E8%A1%8C%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/" target="_blank" rel="noopener">使用SSH反向隧道进行内网穿透</a><br>[3] <a href="https://www.cnblogs.com/eshizhan/archive/2012/07/16/2592902.html" target="_blank" rel="noopener">SSH反向连接及Autossh</a><br>[4] <a href="https://www.cnblogs.com/kwongtai/p/6903420.html" target="_blank" rel="noopener">利用ssh反向代理以及autossh实现从外网连接内网服务器</a><br>[5] <a href="https://blog.windrunner.me/sa/reverse-ssh.html" target="_blank" rel="noopener">使用 autossh 建立反向 SSH 隧道管理个人计算机</a><br>[6] <a href="https://docstore.mik.ua/orelly/networking_2ndEd/ssh/ch09_02.htm" target="_blank" rel="noopener">https://docstore.mik.ua/orelly/networking_2ndEd/ssh/ch09_02.htm</a><br>[7] <a href="https://www.ibm.com/developerworks/cn/linux/l-cn-sshforward/index.html" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/linux/l-cn-sshforward/index.html</a><br>[8] <a href="https://unix.stackexchange.com/questions/236865/what-does-bind-address-mean-in-ssh-port-forwarding/236867" target="_blank" rel="noopener">https://unix.stackexchange.com/questions/236865/what-does-bind-address-mean-in-ssh-port-forwarding/236867</a></p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://joeltsui.github.io/2018/04/18/autossh-nat-ddns/" title="SSH端口转发及内网穿透总结" target="_blank" rel="external">http://joeltsui.github.io/2018/04/18/autossh-nat-ddns/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="http://joeltsui.github.io" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/icon.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="http://joeltsui.github.io" target="_blank"><span class="text-dark">joeltsui</span><small class="ml-1x">Deep learning engineer</small></a></h3>
+        <div>码农。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2018/06/12/mac-appication-config/" title="mac应用配置总结"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2018/04/17/about-this-blog/" title="关于这个博客"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,wechat" data-mobile-sites="weibo,wechat"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/joeltsui" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2019 Joel Tsui
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'ae1aeae9d231bf54430e',
+    clientSecret: 'cabc2c8374879885b8c59bac4567e3e3b2f5362a',
+    repo: 'joeltsui.github.io',
+    owner: 'joeltsui',
+    admin: ['joeltsui'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+    <script defer type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-151940991-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?4554cf1badd940edd310d2211ab8b2f3";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+    <script defer type="text/javascript" src="//tajs.qq.com/stats?sId=66487444" charset="UTF-8"></script>
+
+
+</body>
+</html>

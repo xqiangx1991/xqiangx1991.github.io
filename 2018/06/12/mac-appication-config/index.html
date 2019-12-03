@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  <!--  if (theme.douban.user && page.layout === 'books') {  -->
+  <!-- <meta name="referrer" content="never"> -->
+  <!--  }  -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>mac应用配置总结 | 理想国</title>
+  <meta name="description" content="0x00 前言我有一种强迫症，如果IDE丑，就会浑身难受，而如果工具长得好看，写代码的动力都会上来的。最近对mac上常用的工具进行了一些配置，让他们看上去更优雅。写个总结的文章。其实总结起来就是Material Design，基本把我的工具都换成了这种风格。 0x01 Visual Studio Code最近沉迷于Material Design的风格，配色很是让我喜欢。因此Visual Studi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mac应用配置总结">
+<meta property="og:url" content="http:&#x2F;&#x2F;joeltsui.github.io&#x2F;2018&#x2F;06&#x2F;12&#x2F;mac-appication-config&#x2F;index.html">
+<meta property="og:site_name" content="理想国">
+<meta property="og:description" content="0x00 前言我有一种强迫症，如果IDE丑，就会浑身难受，而如果工具长得好看，写代码的动力都会上来的。最近对mac上常用的工具进行了一些配置，让他们看上去更优雅。写个总结的文章。其实总结起来就是Material Design，基本把我的工具都换成了这种风格。 0x01 Visual Studio Code最近沉迷于Material Design的风格，配色很是让我喜欢。因此Visual Studi">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="https:&#x2F;&#x2F;joeltsui.github.io&#x2F;assets&#x2F;images&#x2F;2018-6-12-mac-theme-appearance.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;joeltsui.github.io&#x2F;assets&#x2F;images&#x2F;2018-6-12-mac-theme-profiles.png">
+<meta property="og:updated_time" content="2018-06-12T00:00:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;joeltsui.github.io&#x2F;assets&#x2F;images&#x2F;2018-6-12-mac-theme-appearance.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://joeltsui.github.io/2018/06/12/mac-appication-config/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="理想国" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/icon.ico" type="image/x-icon">
+  
+  <link rel="stylesheet" href="/css/style.css">
+    
+  
+  
+  
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.css">
+  
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="http://joeltsui.github.io" target="_blank">
+          <img class="img-circle img-rotate" src="/images/icon.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">joeltsui</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Deep learning engineer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> HangZhou, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/joeltsui" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>码农</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+
+    
+      
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled ">
+        
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2019/12/01/deep-learning-models-and-applications/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/12/01/deep-learning-models-and-applications/" class="title">《深度学习模型及应用详解》读书笔记</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-12-01T00:00:00.000Z" itemprop="datePublished">2019-12-01</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2019/11/25/python-deep-learning/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/11/25/python-deep-learning/" class="title">《Python深度学习》读书笔记</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-11-25T00:00:00.000Z" itemprop="datePublished">2019-11-25</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/10/10/blocking-nonblocking-async-sync/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/10/10/blocking-nonblocking-async-sync/" class="title">同步与异步、阻塞与非阻塞</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-10-10T00:00:00.000Z" itemprop="datePublished">2018-10-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/08/29/softmax-regression/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/08/29/softmax-regression/" class="title">机器学习实践——Softmax回归（Softmax Regression）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-08-29T00:00:00.000Z" itemprop="datePublished">2018-08-29</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/08/26/sigmoid-function/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/08/26/sigmoid-function/" class="title">机器学习实践——Logistic回归（Logistic Regression）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-08-26T00:00:00.000Z" itemprop="datePublished">2018-08-26</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-mac-appication-config" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      mac应用配置总结
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2018/06/12/mac-appication-config/" class="article-date">
+	  <time datetime="2018-06-12T00:00:00.000Z" itemprop="datePublished">2018-06-12</time>
+	</a>
+</span>
+        
+        
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2018/06/12/mac-appication-config/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>我有一种强迫症，如果IDE丑，就会浑身难受，而如果工具长得好看，写代码的动力都会上来的。最近对mac上常用的工具进行了一些配置，让他们看上去更优雅。写个总结的文章。其实总结起来就是Material Design，基本把我的工具都换成了这种风格。</p>
+<h2 id="0x01-Visual-Studio-Code"><a href="#0x01-Visual-Studio-Code" class="headerlink" title="0x01 Visual Studio Code"></a>0x01 Visual Studio Code</h2><p>最近沉迷于Material Design的风格，配色很是让我喜欢。因此Visual Studio Code也搞了一套。主题采用的是<a href="https://marketplace.visualstudio.com/items?itemName=whizkydee.material-palenight-theme" target="_blank" rel="noopener">Material Palenight Theme</a>，然后把字体改成了<code>Meslo LG M Regular</code>，最近也是沉迷于这个字体。具体的配置如下，图标等也换了一下，感觉还不错。<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">"workbench.colorTheme": "Material Theme Palenight",</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">"editor.fontFamily": "Meslo LG M Regular ,Menlo, Monaco, 'Courier New' monospace",</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">"editor.fontSize": 14,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">"materialTheme.fixIconsRunning": false,</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">"workbench.iconTheme": "eq-material-theme-icons-palenight"</span></pre></td></tr></table></figure></p>
+<h2 id="0x02-Clion-IntelliJ"><a href="#0x02-Clion-IntelliJ" class="headerlink" title="0x02 Clion IntelliJ"></a>0x02 Clion IntelliJ</h2><p>Jetbrains全家桶简直的棒呆。Clion用来写C++的代码也是非常的爽，而且还能够调试远程Linux环境下的代码，一直苦于离开Windows平台不能好好写C++的代码的结终于解了。</p>
+<p>Clion的主题同样是Material Design，直接在<code>Plugin</code>中搜索<code>Material Design UI</code>就可以了。然后调整一下字体还有字号，再把一些没有必要的错误警告提示的下划波浪形取消，就差不多了。风格的话选择<code>Atom One Dark Theme</code>，虽然说Atom软件做的不怎么样，但是这个设计的IDE风格确实是不错。</p>
+<h2 id="0x03-Iterm2"><a href="#0x03-Iterm2" class="headerlink" title="0x03 Iterm2"></a>0x03 Iterm2</h2><p>首先是基于<a href="https://medium.com/@Clovis_app/configuration-of-a-beautiful-efficient-terminal-and-prompt-on-osx-in-7-minutes-827c29391961" target="_blank" rel="noopener">这篇文章</a>对Iterm2进行改造，可以实现一些很实用的功能，并且看着也不错。</p>
+<p>主题设置好了，但是标题栏还是很丑，和整个界面不搭。再设置一下这个。<br>具体的配置见如下截图。<br><img src="https://joeltsui.github.io/assets/images/2018-6-12-mac-theme-appearance.png" alt=""><br><img src="https://joeltsui.github.io/assets/images/2018-6-12-mac-theme-profiles.png" alt=""><br>上面主要是把标题栏下面的白线去掉，然后启动标题栏的颜色设置。但是想要把标题栏的颜色呵背景颜色设置成一样的发现无法生效。google了才知道，mac High Serria版本已经不能修改标题栏颜色了。但是有人搞出了一些很厉害的东西，不得不佩服，见<a href="https://gitlab.com/gnachman/iterm2/issues/4080" target="_blank" rel="noopener">这里</a>，下面有个人分别对标题栏还有背景设置了不一样的颜色，但是最后显示出来就是背景与标题栏融合了。非常厉害。</p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://joeltsui.github.io/2018/06/12/mac-appication-config/" title="mac应用配置总结" target="_blank" rel="external">http://joeltsui.github.io/2018/06/12/mac-appication-config/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="http://joeltsui.github.io" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/icon.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="http://joeltsui.github.io" target="_blank"><span class="text-dark">joeltsui</span><small class="ml-1x">Deep learning engineer</small></a></h3>
+        <div>码农。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2018/06/13/clion-c__-coding/" title="Clion远程Debug"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2018/04/18/autossh-nat-ddns/" title="SSH端口转发及内网穿透总结"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,wechat" data-mobile-sites="weibo,wechat"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/joeltsui" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2019 Joel Tsui
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'ae1aeae9d231bf54430e',
+    clientSecret: 'cabc2c8374879885b8c59bac4567e3e3b2f5362a',
+    repo: 'joeltsui.github.io',
+    owner: 'joeltsui',
+    admin: ['joeltsui'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+    <script defer type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-151940991-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?4554cf1badd940edd310d2211ab8b2f3";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+    <script defer type="text/javascript" src="//tajs.qq.com/stats?sId=66487444" charset="UTF-8"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  <!--  if (theme.douban.user && page.layout === 'books') {  -->
+  <!-- <meta name="referrer" content="never"> -->
+  <!--  }  -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>机器学习实践——Softmax回归（Softmax Regression） | 理想国</title>
+  <meta name="description" content="0x00 问题引入在Sigmoid回归问题中，我们梳理了二元的回归函数，但是很多时候类别是大于2的。比如需要区分0-9这10个数字，就需要10个类别。 其实Softmax和Logistic回归本质上是一样的。在Logistic二分类的问题中，是将特征值x先经过线性方程，再经过非线性方程，最后得到一个预测值，让预测值要么等于1，要么等于0.同样的，对于多分类的问题，我们也是让特征值先经过线性方程，再">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习实践——Softmax回归（Softmax Regression）">
+<meta property="og:url" content="http:&#x2F;&#x2F;joeltsui.github.io&#x2F;2018&#x2F;08&#x2F;29&#x2F;softmax-regression&#x2F;index.html">
+<meta property="og:site_name" content="理想国">
+<meta property="og:description" content="0x00 问题引入在Sigmoid回归问题中，我们梳理了二元的回归函数，但是很多时候类别是大于2的。比如需要区分0-9这10个数字，就需要10个类别。 其实Softmax和Logistic回归本质上是一样的。在Logistic二分类的问题中，是将特征值x先经过线性方程，再经过非线性方程，最后得到一个预测值，让预测值要么等于1，要么等于0.同样的，对于多分类的问题，我们也是让特征值先经过线性方程，再">
+<meta property="og:locale" content="zh">
+<meta property="og:updated_time" content="2018-08-29T00:00:00.000Z">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://joeltsui.github.io/2018/08/29/softmax-regression/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="理想国" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/icon.ico" type="image/x-icon">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        menuSettings: {
+          zoom: "None"
+        },
+        showMathMenu: false,
+        jax: ["input/TeX","output/CommonHTML"],
+        extensions: ["tex2jax.js"],
+        TeX: {
+          extensions: ["AMSmath.js","AMSsymbols.js"],
+          equationNumbers: {
+            autoNumber: "AMS"
+          }
+        },
+        tex2jax: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]]
+        }
+      });
+    </script>
+    
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.6.1/MathJax.js"></script>
+    
+  
+  
+  
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.css">
+  
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="http://joeltsui.github.io" target="_blank">
+          <img class="img-circle img-rotate" src="/images/icon.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">joeltsui</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Deep learning engineer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> HangZhou, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/joeltsui" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>码农</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+
+    
+      
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled ">
+        
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2019/12/01/deep-learning-models-and-applications/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/12/01/deep-learning-models-and-applications/" class="title">《深度学习模型及应用详解》读书笔记</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-12-01T00:00:00.000Z" itemprop="datePublished">2019-12-01</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2019/11/25/python-deep-learning/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/11/25/python-deep-learning/" class="title">《Python深度学习》读书笔记</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-11-25T00:00:00.000Z" itemprop="datePublished">2019-11-25</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/10/10/blocking-nonblocking-async-sync/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/10/10/blocking-nonblocking-async-sync/" class="title">同步与异步、阻塞与非阻塞</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-10-10T00:00:00.000Z" itemprop="datePublished">2018-10-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/08/29/softmax-regression/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/08/29/softmax-regression/" class="title">机器学习实践——Softmax回归（Softmax Regression）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-08-29T00:00:00.000Z" itemprop="datePublished">2018-08-29</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/08/26/sigmoid-function/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/08/26/sigmoid-function/" class="title">机器学习实践——Logistic回归（Logistic Regression）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-08-26T00:00:00.000Z" itemprop="datePublished">2018-08-26</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-softmax-regression" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      机器学习实践——Softmax回归（Softmax Regression）
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2018/08/29/softmax-regression/" class="article-date">
+	  <time datetime="2018-08-29T00:00:00.000Z" itemprop="datePublished">2018-08-29</time>
+	</a>
+</span>
+        
+        
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2018/08/29/softmax-regression/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="0x00-问题引入"><a href="#0x00-问题引入" class="headerlink" title="0x00 问题引入"></a>0x00 问题引入</h2><p>在Sigmoid回归问题中，我们梳理了二元的回归函数，但是很多时候类别是大于2的。比如需要区分0-9这10个数字，就需要10个类别。</p>
+<p>其实Softmax和Logistic回归本质上是一样的。在Logistic二分类的问题中，是将特征值<script type="math/tex">x</script>先经过线性方程，再经过非线性方程，最后得到一个预测值，让预测值要么等于1，要么等于0.同样的，对于多分类的问题，我们也是让特征值先经过线性方程，再经过非线性方程，最后得到一个值。只不过现在是要得到<script type="math/tex">k</script>个值。同一套的<script type="math/tex">\theta</script>肯定是不行的，我们需要给每个分类都配<script type="math/tex">\theta</script>。假设自变量总共有<script type="math/tex">n</script>个特征，最后总共有<script type="math/tex">k</script>个分类，则<script type="math/tex">\theta</script>的<script type="math/tex">shape=n \times k</script>。但是有个问题是，每一个分类都有一个值，选哪个？此时Softmax里面的<script type="math/tex">max</script>的价值就体现出来了。就选取其中值最大的出来。相当于取概率最大的那个。我们怎么去构建这块思路，就会体现在训练出来的参数上。</p>
+<h2 id="0x01-问题概述与思路"><a href="#0x01-问题概述与思路" class="headerlink" title="0x01 问题概述与思路"></a>0x01 问题概述与思路</h2><p>非线性的过程我们选取<script type="math/tex">g(\theta^Tx)=e^{\theta^Tx}</script>。<br>因此可以得到</p>
+<script type="math/tex; mode=display">
+h_\theta(x^{(i)})=
+\begin{bmatrix}
+p(y^{(i)}=1|x^{(i)};\theta)\\
+p(y^{(i)}=2|x^{(i)};\theta)\\
+\cdots \\
+p(y^{(i)}=k|x^{(i)};\theta)
+\end{bmatrix}
+=
+\frac{1}{\sum_{j=1}^ke^{x^{(i)}\theta_j^T}}
+\begin{bmatrix}
+e^{x^{(i)}\theta_1^T}\\
+e^{x^{(i)}\theta_2^T}\\
+\cdots\\
+e^{x^{(i)}\theta_k^T}
+\end{bmatrix}
+=
+\begin{bmatrix}
+h_{\theta_{1}}(x^{(i)})\\
+h_{\theta_{2}}(x^{(i)})\\
+\cdots \\
+h_{\theta_{k}}(x^{(i)})
+\end{bmatrix}</script><p>下面就是构造损失函数或者最大似然估计函数了。按照现在的情况，好像所谓的最大似然估计函数和损失函数已经不分了，最大似然估计函数加个负号就是损失函数了。</p>
+<p>考虑一下我们期望的结果。当预测的分类是正确的时候，我们希望他对应的“概率值”<script type="math/tex">h_{\theta_j}(x^{(i)})</script>越接近1越好。</p>
+<p>我们按照Logistic中的操作，对<script type="math/tex">h_\theta(x^{(i)})</script>取<script type="math/tex">\log</script>能够简化运算。在计算之前我们先定义好矩阵。</p>
+<script type="math/tex; mode=display">
+\theta=
+\begin{bmatrix}
+\theta_{11} & \theta_{12} & \cdots & \theta_{1n}\\
+\theta_{21} & \theta_{22} & \cdots & \theta_{2n}\\
+\cdots & \cdots & \cdots & \cdots\\
+\theta_{k1} & \theta_{k2} & \cdots & \theta_{kn}
+\end{bmatrix}</script><script type="math/tex; mode=display">
+x = 
+\begin{bmatrix}
+x^{(1)}_1 & x^{(1)}_2 & \cdots & x^{(1)}_n\\
+x^{(2)}_1 & x^{(2)}_2 & \cdots & x^{(2)}_n\\
+\cdots & \cdots & \cdots & \cdots\\
+x^{(m)}_1 & x^{(m)}_2 & \cdots & x^{(m)}_n\\
+\end{bmatrix}</script><script type="math/tex; mode=display">
+y = 
+\begin{bmatrix}
+y^{(1)}_1 & y^{(1)}_2 &\cdots &y^{(1)}_k\\
+y^{(2)}_1 & y^{(2)}_2 &\cdots &y^{(2)}_k\\
+\cdots & \cdots & \cdots & \cdots\\
+y^{(m)}_1 & y^{(m)}_2 &\cdots &y^{(m)}_k\\
+\end{bmatrix}</script><p>我们将<script type="math/tex">y</script>进行<script type="math/tex">one-hot</script>编码，对应的分类的<script type="math/tex">index</script>为1，其余的为0。</p>
+<script type="math/tex; mode=display">
+x^{(i)} \theta_l^T=\theta_{l1}^T x^{(i)}_{1}+\theta_{l2}^T x^{(i)}_2+\cdots+\theta_{ln}^T x^{(i)}_1n</script><p>考虑一下计算最大似然估计的这个过程。有一组样本点<script type="math/tex">(x^{(i)},y^{(i)})</script>。通过这个样本点，可以计算出<script type="math/tex">h_{\theta_l}(x^{(i)}),l\in[1,k]</script>。假设<script type="math/tex">y^{i}=s,s\in [1,k]</script>。那么我们就希望<script type="math/tex">h_{\theta_s}(x^{(i)})</script>越大越好，当<script type="math/tex">l\neq s</script>时，就是属于负样本，但是这个负样本有很多种的可能，可能是除了<script type="math/tex">s</script>以外的其他值，但是概率分布上统一是<script type="math/tex">(1- h_{\theta_s}(x^{(i)}))</script>。换个角度看，其实就是还是拟合一条直线，只不过这条直线把目标标签和<strong>其他标签</strong>分割开来，这不就是二分类嘛。</p>
+<script type="math/tex; mode=display">
+J(\theta)=
+\sum_{i=1}^m \sum_{l=1}^k[y^{(i)}_l \ln h_{\theta_s (x^{(i)})}+(1-y^{(i)}_l)\ln (1-h_{\theta_s(x^{(i)})})],where\ \ y^{(i)}=s</script><p>再把这个问题简化一下，对于每一个样本，我们只能计算与<script type="math/tex">y^{(i)}</script>标签对应的那部分<script type="math/tex">\theta</script>值。比如当<script type="math/tex">y^{(i)}=l</script>，则我们只能更新<script type="math/tex">\theta_l=[\theta_{l1},\theta_{l2},\cdots,\theta_{ln}]</script>，。因为其他的<script type="math/tex">\theta</script>值更新并没有意义，他们虽然代表的是负样本，但是却是有很多种可能的负样本，不管往哪个方向走都是不合适的。因此最大似然估计的导数就可以简化成以下，后半部分和<script type="math/tex">\theta_{sj}</script>没有关系：</p>
+<script type="math/tex; mode=display">
+\frac{\partial L(\theta)}{\theta_j}=
+\sum_{i=1}^m[y^{(i)}_l \frac{\partial \ln h_{\theta_s(x^{(i)})}}{\theta_{sj}}],where\ \ y^{(i)}=s \tag{1}</script><script type="math/tex; mode=display">
+\begin{split}
+\frac{\partial \ln h_{\theta_s(x^{(i)})}}{\partial \theta_{sj}}
+&=\frac{\partial (x^{(i)}\theta_l^T-\ln{\sum_{l=1}^ke^{x^{(i)}\theta_l^T}})}{\partial \theta_{sj}}\\
+&=x_j^{(i)}-\frac{\partial \ln{\sum_{l=1}^ke^{x^{(i)}\theta_l^T}}}{\partial \theta_{sj}}\\
+&=x_j^{(i)} - \frac{x_j^{(i)} e^{x^{(i)}\theta_s^{T}}}{\sum_{l=1}^ke^{x^{(i)}\theta_l^T}}\\
+&=x^{(i)}_j(1-h_{\theta_s (x^{(i)})})
+\end{split}</script><p>所以可以<script type="math/tex">(1)</script>式</p>
+<script type="math/tex; mode=display">
+\frac{\partial L(\theta)}{\theta_j}=
+\sum_{i=1}^m x^{(i)}_j(1-h_{\theta_s (x^{(i)})})</script><p>然后按照之前的套路</p>
+<script type="math/tex; mode=display">
+\theta_{sj} = \theta_{sj} + \alpha \sum_{i=1}^m x^{(i)}_j(1-h_{\theta_s (x^{(i)})})</script><h2 id="0x02-Coding-Example"><a href="#0x02-Coding-Example" class="headerlink" title="0x02 Coding Example"></a>0x02 Coding Example</h2><h2 id="0x03-参考文献"><a href="#0x03-参考文献" class="headerlink" title="0x03 参考文献"></a>0x03 参考文献</h2><p>[1] <a href="https://gist.github.com/dhammack/8071840" target="_blank" rel="noopener">https://gist.github.com/dhammack/8071840</a></p>
+<p>[2] <a href="http://ufldl.stanford.edu/tutorial/supervised/SoftmaxRegression/" target="_blank" rel="noopener">http://ufldl.stanford.edu/tutorial/supervised/SoftmaxRegression/</a></p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://joeltsui.github.io/2018/08/29/softmax-regression/" title="机器学习实践——Softmax回归（Softmax Regression）" target="_blank" rel="external">http://joeltsui.github.io/2018/08/29/softmax-regression/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="http://joeltsui.github.io" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/icon.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="http://joeltsui.github.io" target="_blank"><span class="text-dark">joeltsui</span><small class="ml-1x">Deep learning engineer</small></a></h3>
+        <div>码农。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2018/10/10/blocking-nonblocking-async-sync/" title="同步与异步、阻塞与非阻塞"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2018/08/26/sigmoid-function/" title="机器学习实践——Logistic回归（Logistic Regression）"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,wechat" data-mobile-sites="weibo,wechat"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/joeltsui" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2019 Joel Tsui
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'ae1aeae9d231bf54430e',
+    clientSecret: 'cabc2c8374879885b8c59bac4567e3e3b2f5362a',
+    repo: 'joeltsui.github.io',
+    owner: 'joeltsui',
+    admin: ['joeltsui'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+    <script defer type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-151940991-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?4554cf1badd940edd310d2211ab8b2f3";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+    <script defer type="text/javascript" src="//tajs.qq.com/stats?sId=66487444" charset="UTF-8"></script>
+
+
+</body>
+</html>

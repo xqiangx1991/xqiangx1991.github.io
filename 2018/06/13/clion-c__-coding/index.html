@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  <!--  if (theme.douban.user && page.layout === 'books') {  -->
+  <!-- <meta name="referrer" content="never"> -->
+  <!--  }  -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Clion远程Debug | 理想国</title>
+  <meta name="description" content="0x00在Mac上如何优雅的写C++代码一直困扰着我，起初有了Visual Studio Code，但是代码自动补全的能力真的是太弱了，导致有一段时间一写C++的代码就要带上Windows的电脑，非常的麻烦。不仅仅是Mac，在Linux平台下也是，没有了Visual Studio的支持，我就完全没法写C++代码了，让我非常痛苦。终于，Clion救世主出现了，跨平台，基于CMakelist.txt编">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Clion远程Debug">
+<meta property="og:url" content="http:&#x2F;&#x2F;joeltsui.github.io&#x2F;2018&#x2F;06&#x2F;13&#x2F;clion-c__-coding&#x2F;index.html">
+<meta property="og:site_name" content="理想国">
+<meta property="og:description" content="0x00在Mac上如何优雅的写C++代码一直困扰着我，起初有了Visual Studio Code，但是代码自动补全的能力真的是太弱了，导致有一段时间一写C++的代码就要带上Windows的电脑，非常的麻烦。不仅仅是Mac，在Linux平台下也是，没有了Visual Studio的支持，我就完全没法写C++代码了，让我非常痛苦。终于，Clion救世主出现了，跨平台，基于CMakelist.txt编">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;deployment1.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;deployment2.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;deployment3.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;deployment4.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;deployment5.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;remotedebug1.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;remotedebug2.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;remotedebug3.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;remotedebug4.png">
+<meta property="og:updated_time" content="2018-06-13T00:00:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;joeltsui-blog.oss-cn-hangzhou.aliyuncs.com&#x2F;deployment1.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://joeltsui.github.io/2018/06/13/clion-c__-coding/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="理想国" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/icon.ico" type="image/x-icon">
+  
+  <link rel="stylesheet" href="/css/style.css">
+    
+  
+  
+  
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.css">
+  
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="http://joeltsui.github.io" target="_blank">
+          <img class="img-circle img-rotate" src="/images/icon.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">joeltsui</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">Deep learning engineer</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> HangZhou, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">Repository</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">About</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/joeltsui" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>码农</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+
+    
+      
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled ">
+        
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2019/12/01/deep-learning-models-and-applications/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/12/01/deep-learning-models-and-applications/" class="title">《深度学习模型及应用详解》读书笔记</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-12-01T00:00:00.000Z" itemprop="datePublished">2019-12-01</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2019/11/25/python-deep-learning/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/11/25/python-deep-learning/" class="title">《Python深度学习》读书笔记</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-11-25T00:00:00.000Z" itemprop="datePublished">2019-11-25</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/10/10/blocking-nonblocking-async-sync/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/10/10/blocking-nonblocking-async-sync/" class="title">同步与异步、阻塞与非阻塞</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-10-10T00:00:00.000Z" itemprop="datePublished">2018-10-10</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/08/29/softmax-regression/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/08/29/softmax-regression/" class="title">机器学习实践——Softmax回归（Softmax Regression）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-08-29T00:00:00.000Z" itemprop="datePublished">2018-08-29</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-thumb">
+              <a href="/2018/08/26/sigmoid-function/" class="thumb">
+    
+    
+        <span class="thumb-image thumb-none"></span>
+    
+</a>
+
+            </div>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/08/26/sigmoid-function/" class="title">机器学习实践——Logistic回归（Logistic Regression）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-08-26T00:00:00.000Z" itemprop="datePublished">2018-08-26</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-clion-c__-coding" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Clion远程Debug
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2018/06/13/clion-c__-coding/" class="article-date">
+	  <time datetime="2018-06-13T00:00:00.000Z" itemprop="datePublished">2018-06-13</time>
+	</a>
+</span>
+        
+        
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2018/06/13/clion-c__-coding/#comments" class="article-comment-link">Comments</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="0x00"><a href="#0x00" class="headerlink" title="0x00"></a>0x00</h2><p>在Mac上如何优雅的写C++代码一直困扰着我，起初有了Visual Studio Code，但是代码自动补全的能力真的是太弱了，导致有一段时间一写C++的代码就要带上Windows的电脑，非常的麻烦。不仅仅是Mac，在Linux平台下也是，没有了Visual Studio的支持，我就完全没法写C++代码了，让我非常痛苦。终于，Clion救世主出现了，跨平台，基于CMakelist.txt编译，颜值又高，功能齐全！</p>
+<p>它的功能就不多说了，可以到官网去学习。这次主要说一下远程调试的问题，总结一下。初学者可以先看官网上关于<a href="https://www.jetbrains.com/help/clion/run-debug-configuration-remote-gdb.html" target="_blank" rel="noopener">远程调试</a>的部分。</p>
+<h2 id="0x01"><a href="#0x01" class="headerlink" title="0x01"></a>0x01</h2><p>首先第一步是要同步代码，把本地的代码和远程的代码同步一下，不然修改代码就会变得很麻烦。</p>
+<p align="center"><img src="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/deployment1.png" alt="配置代码同步" title style/>
+</p>
+
+<p>选择<code>SFTP</code>，这样的话可以通过<code>SSH</code>进行文件的同步。</p>
+<p align="center"><img src="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/deployment2.png" alt="配置代码同步" title style/>
+</p>
+
+<p align="center"><img src="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/deployment3.png" alt="配置代码同步" title style/>
+</p>
+
+<p>把本地需要同步的路径和远程主机的路径关联上。</p>
+<p align="center"><img src="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/deployment4.png" alt="配置代码同步" title style/>
+</p>
+
+<p>配置好各个路径以后直接把本地的代码上传上去，还能设置自动上传代码。登陆远程服务器，就可以看到代码了。</p>
+<p align="center"><img src="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/deployment5.png" alt="配置代码同步" title style/>
+</p>
+
+<p>然后就能随心所欲上传下载更新文件了，调试利器。</p>
+<h2 id="0x02"><a href="#0x02" class="headerlink" title="0x02"></a>0x02</h2><p>现在可以进行代码调试了。</p>
+<p>先说说远程debug的基本原理。其实就是首先在远程端运行程序，运行了就马上暂停，同时监听配置的端口，然后本地开始运行，运行就会发消息给远程服务器，两个端口一对上就开始debug了。</p>
+<p>首先，我们要让远程的代码先跑起来，先在远程端对代码进行编译，在编译的时候一定要注意，如果你要进行debug，必须加上参数<code>-DCMAKE_BUILD_TYPE=Debug</code>，否则你在Clion上怎么打断点也没用。</p>
+<p>另外为了能够远程debug，需要在远程服务器上安装<strong>gdbserver</strong>，直接<code>apt-get install</code>一下。另外需要注意的是，远程主机上的<code>GDB</code>版本要和本地的版本一致，否则会出问题。</p>
+<p>编译好以后我们回到本地，对本地进行一些配置。</p>
+<p align="center"><img src="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/remotedebug1.png" alt="远程调试" title style/>
+</p>
+
+<p align="center"><img src="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/remotedebug2.png" alt="远程调试" title style/>
+</p>
+
+<p align="center"><img src="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/remotedebug3.png" alt="远程调试" title style/>
+</p>
+
+
+<p>看上面的几个参数，看看都是怎么来的。</p>
+<p>首先是<code>GDB</code>，这个必须是编译出来的基于Linux平台的才可以，而不是基于Mac平台的。具体的教程参考<a href="https://blog.jetbrains.com/clion/2016/07/clion-2016-2-eap-remote-gdb-debug/" target="_blank" rel="noopener">这里</a>，编译好了选择相应的程序就可以了。</p>
+<p>这个<code>target remote args</code>比较好理解，按照这个格式写，最后的端口是自定义的，与后面的远程端的匹配就可以了。</p>
+<p><code>Symbol file</code>其实是在远程端生成的程序，同步下来，选中。</p>
+<p><code>Sysroot</code>是本地的源代码的路径，这个填不填都能debug，但是我发现没有加这个话调试起来非常慢。</p>
+<p><code>Path Mappings</code>顾名思义就是把远程的和本地的路径进行关联。这步是必须做的，否则断点打了也没用。</p>
+<p>现在这样的配置就完成了。可以开始debug了。</p>
+<p>在远程端运行<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">gdbserver localhost:7000 ./remoteTest</span></pre></td></tr></table></figure><br>此时，远程端的程序就会监听7000端口，同时会一直等待。此时在本机启动调试。</p>
+<p align="center"><img src="https://joeltsui-blog.oss-cn-hangzhou.aliyuncs.com/remotedebug4.png" alt="远程调试" title style/>
+</p>
+
+<h2 id="0x03-one-more-thing"><a href="#0x03-one-more-thing" class="headerlink" title="0x03 one more thing"></a>0x03 one more thing</h2><p>如果是在同一个局域网中的机器，毫无疑问，是一点问题都没有的，如果远程主机有外网ip也是可以的。</p>
+<p>但是，如果没有外网ip，又不在同一个局域网怎么办呢？</p>
+<p>这里就到了<code>SSH</code>发挥作用的时候了。</p>
+<p>如果要对这种主机进行debug，首先需要能够连接<code>ssh</code>，按照之前的教程先建立这个隧道。然后在远程主机和外网服务器之间建立一个远程端口转发。相当于把外网主机的7000端口的请求转发到远程服务器的7000端口上，完美实现调试！</p>
+<p><code>ssh -NR 7000:localhost:7000 root@10.12.1.3</code></p>
+<p>然后就是按照前面的步骤进行debug就可以了。</p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://joeltsui.github.io/2018/06/13/clion-c__-coding/" title="Clion远程Debug" target="_blank" rel="external">http://joeltsui.github.io/2018/06/13/clion-c__-coding/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="http://joeltsui.github.io" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/icon.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="http://joeltsui.github.io" target="_blank"><span class="text-dark">joeltsui</span><small class="ml-1x">Deep learning engineer</small></a></h3>
+        <div>码农。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2018/08/24/linear-regression/" title="机器学习实践——线性回归（Linear Regression）"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;Newer</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2018/06/12/mac-appication-config/" title="mac应用配置总结"><span>Older&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,wechat" data-mobile-sites="weibo,wechat"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/joeltsui" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="/atom.xml" target="_blank" title="Rss" data-toggle=tooltip data-placement=top><i class="icon icon-rss"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        &copy; 2019 Joel Tsui
+        
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: 'ae1aeae9d231bf54430e',
+    clientSecret: 'cabc2c8374879885b8c59bac4567e3e3b2f5362a',
+    repo: 'joeltsui.github.io',
+    owner: 'joeltsui',
+    admin: ['joeltsui'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+    <script defer type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-151940991-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+
+
+    <script defer>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?4554cf1badd940edd310d2211ab8b2f3";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+    <script defer type="text/javascript" src="//tajs.qq.com/stats?sId=66487444" charset="UTF-8"></script>
+
+
+</body>
+</html>
